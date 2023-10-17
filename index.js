@@ -2,6 +2,7 @@
 const YAML = require('yaml');
 const fs = require('fs');
 const path = require('path');
+const { fork } = require('child_process');
 
 const redirectsFile = fs.readFileSync(path.join(__dirname, 'redirects.yml'), 'utf-8');
 const redirects = YAML.parse(redirectsFile);
@@ -17,4 +18,11 @@ for (let [slug, url] of Object.entries(redirects)) {
     console.log("Generating HTML Page for", slug);
 
     const html = templateHTML.replaceAll('https://example.com', url);
+    
+    // Create folder for each slug
+    const folderPath = path.join(__dirname, 'out', slug);
+    fs.mkdirSync(folderPath, {recursive : true});
+
+    // Create an index.html in each slug directory
+    fs.writeFileSync(path.join(folderPath, 'index.html'), html); 
 }
